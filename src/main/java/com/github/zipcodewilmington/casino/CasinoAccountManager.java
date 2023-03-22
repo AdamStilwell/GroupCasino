@@ -34,7 +34,19 @@ public class CasinoAccountManager extends CasinoAccount{
         }
     }
     public void saveAllAccounts(){
-
+        BufferedWriter bufferedWriter;
+        try{
+            bufferedWriter = new BufferedWriter(new FileWriter("accountDB.txt"));
+            for(CasinoAccount account : accountMap.values()){
+                bufferedWriter.write(account.getName()+","+account.getPassword()+","+account.getBalance());
+                bufferedWriter.newLine();
+            }
+            bufferedWriter.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("File 'accountDB.txt' is not found!");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public CasinoAccount getAccount(String accountName, String accountPassword) {

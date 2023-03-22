@@ -19,22 +19,30 @@ public class Casino implements Runnable {
     private final IOConsole errorConsole = new IOConsole(AnsiColor.RED);
     private final IOConsole successConsole = new IOConsole(AnsiColor.YELLOW);
 
-
-    CasinoAccountManager casinoAccountManager = new CasinoAccountManager();
-    CasinoAccount currentAccount = null;
+    private CasinoAccountManager casinoAccountManager;
+    private CasinoAccount currentAccount = null;
 
     public Casino(){
         casinoAccountManager = new CasinoAccountManager();
     }
 
-
     @Override
     public void run() {
         boolean isInCasino = true;
+
+        // print welcome message
+        welcomeMessage();
+
+        // run the casino until exit
         while(isInCasino){
+
+            // show main menu and ask for selection
             int mainMenuOption = lobbyMenu();
+
+            // check for selection and execute
             switch(mainMenuOption){
-                case 1: //create an account
+                //create an account
+                case 1:
                     if(currentAccount==null) {
                         createNewAccount();
                     } else {
@@ -42,7 +50,8 @@ public class Casino implements Runnable {
                     }
                     break;
 
-                case 2: // login
+                // login
+                case 2:
                     if(currentAccount==null) {
                         login();
                     } else {
@@ -50,27 +59,34 @@ public class Casino implements Runnable {
                     }
                     break;
 
-                case 3: // show balance
+                // show balance
+                case 3:
                     if(currentAccount!=null){
-                        System.out.println(currentAccount.getBalance());
+                        showBalance();
                     }else {
                         errorConsole.println("Please log in before execute this option");
                     }
                     break;
-                case 4: // select a game
+
+                // select a game
+                case 4:
                     if(currentAccount!=null){
                         // call games menu
                     }else {
                         errorConsole.println("Please log in before execute this option");
                     }
                     break;
-                case 5: // go to lounge
+
+                // go to lounge
+                case 5:
                     if(currentAccount!=null){
                     } else {
                         errorConsole.println("Please log in before execute this option");
                     }
                     break;
-                case 6: // log out of current account
+
+                // log out of current account
+                case 6:
                     if(currentAccount!=null){
                         currentAccount = null;
                         successConsole.println("Logged out successfully!");
@@ -78,10 +94,15 @@ public class Casino implements Runnable {
                         errorConsole.println("No account was logged in!");
                     }
                     break;
-                case 7: // exit casino
+
+                // exit casino and save data to database
+                case 7:
+                    casinoAccountManager.saveAllAccounts();
                     successConsole.println("Bye Bye, See You Again Soon!");
                     isInCasino = false;
                     break;
+
+                // other cases => error message
                 default:
                     errorConsole.println("Please select from given options only!");
             }
@@ -122,11 +143,10 @@ public class Casino implements Runnable {
 //        } while (!"logout".equals(arcadeDashBoardInput));
     }
 
-    private String getArcadeDashboardInput() {
-        return console.getStringInput(new StringBuilder()
+    private void welcomeMessage() {
+         console.println(new StringBuilder()
                 .append("Welcome to the Arcade Dashboard!")
                 .append("\nFrom here, you can select any of the following options:")
-                .append("\n\t[ create-account ], [ select-game ]")
                 .toString());
     }
 
@@ -167,7 +187,8 @@ public class Casino implements Runnable {
         console.println("Welcome to the log-in screen.");
         while(true){
             String accountName = console.getStringInput("Enter your account name:");
-            if(!casinoAccountManager.checkAccountName(accountName)){ // if name not already in DB
+            // if name not already in DB
+            if(!casinoAccountManager.checkAccountName(accountName)){
                 errorConsole.println("Account name is not recognized! Please try again.");
                 continue;
             }
@@ -183,15 +204,80 @@ public class Casino implements Runnable {
         }
     }
 
-    private boolean checkIsNotLoggedIn(String errorMessage){
-        errorConsole.println(errorMessage);
-        if(currentAccount==null){
-            return true;
+    private void showBalance(){
+        boolean isInBalanceMenu = true;
+        while(isInBalanceMenu){
+            successConsole.println("Your current balance is %.2f ",currentAccount.getBalance());
+            Integer option = balanceMenu();
+            switch (option){
+                case 1:
+                    Double depAmount = console.getDoubleInput("Enter the amount you want to deposit:");
+                    if(depAmount > 0 && depAmount < 20000){
+                        currentAccount.deposit(depAmount);
+                        successConsole.println("Deposit successful!");
+                    } else {
+                        errorConsole.println("Invalid amount, amount should be 1 - 20000!");
+                    }
+                    break;
+                case 2:
+                    Double withdrawAmount = console.getDoubleInput("Enter the amount you want to withdraw:");
+                    if(withdrawAmount < 0 ){
+                        errorConsole.println("Invalid amount, amount cannot be negative!");
+                    }else if(withdrawAmount > currentAccount.getBalance()){
+                        errorConsole.println("Invalid amount, amount cannot exceed current balance!");
+                    } else {
+                        currentAccount.withdraw(withdrawAmount);
+                        successConsole.println("Withdraw successfully!");
+                    }
+                    break;
+                case 3:
+                    isInBalanceMenu = false;
+                    break;
+                default:
+                    errorConsole.println("Please select from given options only!");
+            }
         }
-        return false;
     }
 
-    private String getGameSelectionInput() {
+    private Integer balanceMenu(){
+        return console.getIntegerInput(new StringBuilder()
+                .append("+-------------------------------+\n")
+                .append("|      ACCOUNT BALANCE MENU     |\n")
+                .append("+-------------------------------+\n")
+                .append("|  1. Deposit                   |\n")
+                .append("|  2. Withdraw                  |\n")
+                .append("|  3. Exit to main menu         |\n")
+                .append("+-------------------------------+\n")
+                .append("SELECT A NUMBER: ")
+                .toString());
+    }
+
+    private String getGame() {
+        boolean isGettingGame = true;
+        console.println("Welcome to the Game Selection Dashboard!");
+        while(isGettingGame){
+            Integer option = gameMenu();
+            switch (option){
+                case 1: //slots game
+                    play(new SlotsGame(), new SlotsPlayer());
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    isGettingGame = false;
+                    break;
+                default:
+                    errorConsole.println("Please select from given options only!");
+            }
+        }
         return console.getStringInput(new StringBuilder()
                 .append("Welcome to the Game Selection Dashboard!")
                 .append("\nFrom here, you can select any of the following options:")
@@ -199,6 +285,22 @@ public class Casino implements Runnable {
                 .toString());
     }
 
+    private Integer gameMenu(){
+        return console.getIntegerInput(new StringBuilder()
+                .append("+-----------------------+\n")
+                .append("|      GAMES MENU       |\n")
+                .append("+-----------------------+\n")
+                .append("|  1. Slots             |\n")
+                .append("|  2. Number Guessing   |\n")
+                .append("|  3. Roulette          |\n")
+                .append("|  4. Black Jack        |\n")
+                .append("|  5. Wheel of 6        |\n")
+                .append("|  6. War (non-betting) |\n")
+                .append("|  7. Exit to main menu |\n")
+                .append("+-----------------------+\n")
+                .append("SELECT A NUMBER: ")
+                .toString());
+    }
     private void play(Object gameObject, Object playerObject) {
         GameInterface game = (GameInterface)gameObject;
         PlayerInterface player = (PlayerInterface)playerObject;
