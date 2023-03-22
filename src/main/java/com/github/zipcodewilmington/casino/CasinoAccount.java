@@ -6,21 +6,56 @@ package com.github.zipcodewilmington.casino;
  * The `ArcadeAccount` is used to log into the system to select a `Game` to play.
  */
 public class CasinoAccount {
-    // constructor??
+    private String name;
+    private String password;
+    private Double balance;
 
-    /** variables:
-     * account name, password, balance
-     *
-     * methods:
-     * getName
-     * setName
-     * getBalance
-     * setBalance
-     * getPassword
-     * setPassword
-     * ^^ I think these variables move to CasinoAccountManager??
-     *
-     *
-     */
+    public CasinoAccount(){
+        this.name = "bot";
+        this.password = "bot";
+        this.balance = 0.0;
+    }
+    public CasinoAccount(String name, String password){
+        this.name = name;
+        this.password = password;
+        this.balance = 0.0;
+    }
+    public CasinoAccount(String name, String password, Double balance){
+        this.name = name;
+        this.password = password;
+        this.balance = balance;
+    }
+    public String getName() {
+        return name;
+    }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(Double balance) {
+        this.balance = balance;
+    }
+
+    public Double deposit(Double amount){
+        this.balance += amount;
+        return this.balance;
+    }
+
+    public Double withdraw(Double amount){
+        this.balance -= amount;
+        return this.balance;
+    }
 }
