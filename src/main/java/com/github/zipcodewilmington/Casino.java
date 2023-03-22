@@ -4,8 +4,6 @@ import com.github.zipcodewilmington.casino.CasinoAccount;
 import com.github.zipcodewilmington.casino.CasinoAccountManager;
 import com.github.zipcodewilmington.casino.GameInterface;
 import com.github.zipcodewilmington.casino.PlayerInterface;
-import com.github.zipcodewilmington.casino.games.numberguess.NumberGuessGame;
-import com.github.zipcodewilmington.casino.games.numberguess.NumberGuessPlayer;
 import com.github.zipcodewilmington.casino.games.slots.SlotsGame;
 import com.github.zipcodewilmington.casino.games.slots.SlotsPlayer;
 import com.github.zipcodewilmington.utils.AnsiColor;
@@ -19,11 +17,11 @@ public class Casino implements Runnable {
     private final IOConsole errorConsole = new IOConsole(AnsiColor.RED);
     private final IOConsole successConsole = new IOConsole(AnsiColor.YELLOW);
 
-    private CasinoAccountManager casinoAccountManager;
+    private CasinoAccountManager accountManager;
     private CasinoAccount currentAccount = null;
 
     public Casino(){
-        casinoAccountManager = new CasinoAccountManager();
+        accountManager = new CasinoAccountManager();
     }
 
     @Override
@@ -97,7 +95,7 @@ public class Casino implements Runnable {
 
                 // exit casino and save data to database
                 case 7:
-                    casinoAccountManager.saveAllAccounts();
+                    accountManager.saveAllAccounts();
                     successConsole.println("Bye Bye, See You Again Soon!");
                     isInCasino = false;
                     break;
@@ -171,13 +169,13 @@ public class Casino implements Runnable {
         console.println("Welcome to the account-creation screen.");
         while(true){
             String accountName = console.getStringInput("Enter your account name:");
-            if(casinoAccountManager.checkAccountName(accountName)){ // if name already exist
+            if(accountManager.checkAccountName(accountName)){ // if name already exist
                 errorConsole.println("Account name already exists! Please choose another one.");
                 continue;
             }
             String password = console.getStringInput("Enter your password:");
-            CasinoAccount account = casinoAccountManager.createAccount(accountName, password);
-            casinoAccountManager.registerAccount(account);
+            CasinoAccount account = accountManager.createAccount(accountName, password);
+            accountManager.registerAccount(account);
             successConsole.println("Account created successfully! Sending you back to the main menu!");
             break;
         }
@@ -188,14 +186,14 @@ public class Casino implements Runnable {
         while(true){
             String accountName = console.getStringInput("Enter your account name:");
             // if name not already in DB
-            if(!casinoAccountManager.checkAccountName(accountName)){
+            if(!accountManager.checkAccountName(accountName)){
                 errorConsole.println("Account name is not recognized! Please try again.");
                 continue;
             }
             String password = console.getStringInput("Enter your password:");
-            if(casinoAccountManager.checkAccount(accountName,password)){
-                CasinoAccount account = casinoAccountManager.createAccount(accountName, password);
-                casinoAccountManager.registerAccount(account);
+            if(accountManager.checkAccount(accountName,password)){
+                CasinoAccount account = accountManager.createAccount(accountName, password);
+                accountManager.registerAccount(account);
                 currentAccount = account;
                 successConsole.println("Account logged in successfully!");
                 break;
