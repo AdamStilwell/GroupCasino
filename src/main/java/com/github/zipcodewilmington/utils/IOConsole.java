@@ -15,7 +15,7 @@ public class IOConsole {
     private final AnsiColor ansiColor;
 
     public IOConsole() {
-        this(AnsiColor.AUTO);
+        this(AnsiColor.WHITE);
     }
 
     public IOConsole(AnsiColor ansiColor) {
